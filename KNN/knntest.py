@@ -1,44 +1,45 @@
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score, GridSearchCV, KFold
-data = pd.read_csv("../Dataset/higgs10k.csv", index_col=False)
+from sklearn.model_selection import cross_val_score, GridSearchCV, KFold, RepeatedKFold
+from sklearn.metrics import get_scorer_names
+import matplotlib.pyplot as plt
+import random
 
+random.seed()
+seed = random.randrange(1000000)
+
+data = pd.read_csv("../Dataset/higgs10k.csv", index_col=False)
 #print(data.shape)
 #print(data.columns)
-
 y = data['process type']
-X = data.drop(columns=['process type', 'lepton  pT', 'lepton  eta', 'lepton  phi', 'missing energy magnitude', 'missing energy phi', 'jet 1 pt', 'jet 1 eta', 'jet 1 phi', 'jet 1 b-tag', 'jet 2 pt', 'jet 2 eta', 'jet 2 phi', 'jet 2 b-tag', 'jet 3 pt', 'jet 3 eta', 'jet 3 phi', 'jet 3 b-tag', 'jet 4 pt', 'jet 4 eta', 'jet 4 phi', 'jet 4 b-tag'])
-#X = data.drop(columns=['process type'])
-#X = data.drop(columns=['process type', 'm_jj', 'm_jjj', 'm_lv', 'm_jlv', 'm_bb', 'm_wbb', 'm_wwbb'])
+X1 = data.drop(columns=['process type'])
+X2 = data.drop(columns=['process type', 'lepton  pT', 'lepton  eta', 'lepton  phi', 'missing energy magnitude', 'missing energy phi', 'jet 1 pt', 'jet 1 eta', 'jet 1 phi', 'jet 1 b-tag', 'jet 2 pt', 'jet 2 eta', 'jet 2 phi', 'jet 2 b-tag', 'jet 3 pt', 'jet 3 eta', 'jet 3 phi', 'jet 3 b-tag', 'jet 4 pt', 'jet 4 eta', 'jet 4 phi', 'jet 4 b-tag'])
+X3 = data.drop(columns=['process type', 'm_jj', 'm_jjj', 'm_lv', 'm_jlv', 'm_bb', 'm_wbb', 'm_wwbb'])
 
-'''
-Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.3, random_state=473)
-param = {'n_neighbors':list(range(10, 500, 10))}
-knn = KNeighborsClassifier()
-kf = KFold(10, random_state=473, shuffle=True)
-#knn.fit(Xtrain, ytrain).score(Xtest, ytest)
-gs = GridSearchCV(knn, param, cv=kf, scoring="accuracy")
-gs.fit(X, y)
-print(gs.best_params_)
-'''
-#best neighbours is 50
+X1train, X1test, ytrain, ytest = train_test_split(X1, y, test_size=2000, random_state=473)
+X2train, X2test = train_test_split(X2, test_size=2000, random_state=473)
+X3train, X3test = train_test_split(X3, test_size=2000, random_state=473)
+
+param = {'n_neighbors':list(range(1, 50, 1))}
+#kf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10)
 
 
-'''
-tested it myself as well and got 50
-scli = []
-for x in range(10, 500, 10):
-    scores = cross_val_score(KNeighborsClassifier(x), Xtrain, ytrain, cv=10)
-    scli.append((x, round(100*sum(scores)/len(scores), 3)))
+print("Modelling AI with all attributes")
+gs = GridSearchCV(KNeighborsClassifier(),
+                  param,
+                  cv=10,
+                  scoring="accuracy")
+gs.fit(X1train, ytrain)
+print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
+print("Accuracy on test data X1 is: " + str(gs.best_estimator_.score(X1test, ytest)))
 
+print("\nModelling AI with 7 special attributes only")
+gs.fit(X2train, ytrain)
+print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
+print("Accuracy on test data X2 is: " + str(gs.best_estimator_.score(X2test, ytest)))
 
-#print(scli[1][1])
-sclis = sorted(scli, key=lambda a : a[1])
-for x in sclis:
-    print(x)
-'''
-scores = cross_val_score(KNeighborsClassifier(50), X, y, cv=10)
-print(scores.mean())
-
-#now test for accuracy
+print("\nModelling AI with 22 actual attributes only")
+gs.fit(X3train, ytrain)
+print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
+print("Accuracy on test data X2 is: " + str(gs.best_estimator_.score(X3test, ytest)))
