@@ -25,21 +25,25 @@ param = {'n_neighbors':list(range(1, 50, 1))}
 #kf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10)
 
 
-print("Modelling AI with all attributes")
 gs = GridSearchCV(KNeighborsClassifier(),
                   param,
                   cv=10,
                   scoring="accuracy")
+
+#print("Modelling AI KNN with all attributes on 10k")
+print("Modelling AI KNN with all attributes on 100k")
 gs.fit(X1train, ytrain)
 print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
 print("Accuracy on test data X1 is: " + str(gs.best_estimator_.score(X1test, ytest)))
 
-print("\nModelling AI with 7 special attributes only")
+#print("\nModelling AI KNN with 7 special attributes only on 10K")
+print("\nModelling AI KNN with 7 special attributes only on 100K")
 gs.fit(X2train, ytrain)
 print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
 print("Accuracy on test data X2 is: " + str(gs.best_estimator_.score(X2test, ytest)))
 
-print("\nModelling AI with 22 actual attributes only")
+#print("\nModelling AI KNN with 22 actual attributes only on 10K")
+print("\nModelling AI KNN with 22 actual attributes only on 100K")
 gs.fit(X3train, ytrain)
 print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
 print("Accuracy on test data X2 is: " + str(gs.best_estimator_.score(X3test, ytest)))
