@@ -3,7 +3,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score, GridSearchCV, KFold, RepeatedKFold
-from sklearn.metrics import get_scorer_names
+from sklearn.metrics import get_scorer_names, roc_auc_score
 import matplotlib.pyplot as plt
 import random
 
@@ -25,7 +25,7 @@ X3train, X3test = train_test_split(X3, test_size=2000, random_state=473)
 param = {"criterion":("gini", "entropy", "log_loss"), "max_depth":(6, 7 , 8, 9, 10, 11)}
 
 
-gs = GridSearchCV(DecisionTreeClassifier(random_state=473),
+gs = GridSearchCV(DecisionTreeClassifier(random_state=10),
                   param,
                   cv=10,
                   scoring="accuracy")
@@ -35,15 +35,19 @@ print("Modelling AI DT with all attributes using 10k dataset")
 gs.fit(X1train, ytrain)
 print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
 print("Accuracy on test data X1 is: " + str(gs.best_estimator_.score(X1test, ytest)))
+print("ROC_AUC is: " + str(round(100 * roc_auc_score(ytest, gs.best_estimator_.predict(X1test)), 2)))
 
 print("\nModelling AI DT with 7 special attributes only using 10k dataset")
 #print("\nModelling AI DT with 7 special attributes only using 100k dataset")
 gs.fit(X2train, ytrain)
 print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
 print("Accuracy on test data X2 is: " + str(gs.best_estimator_.score(X2test, ytest)))
+print("ROC_AUC is: " + str(round(100 * roc_auc_score(ytest, gs.best_estimator_.predict(X2test)), 2)))
+
 
 print("\nModelling AI DT with 22 actual attributes only using 10k dataset")
 #print("\nModelling AI DT with 22 actual attributes only using 100k dataset")
 gs.fit(X3train, ytrain)
 print("According to accuracy: " + str(gs.best_params_) + " With score: " + str(gs.best_score_))
 print("Accuracy on test data X2 is: " + str(gs.best_estimator_.score(X3test, ytest)))
+print("ROC_AUC is: " + str(round(100 * roc_auc_score(ytest, gs.best_estimator_.predict(X3test)), 2)))
